@@ -5,9 +5,10 @@ dotenvConfig()
 // const uri = `mongodb+srv://ekoemmanueljavl:${process.env.MONGODB_PASSWORD}@cluster0.n8o8vva.mongodb.net/?retryWrites=true&w=majority`;
 
 const mongouri:any = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017'
+console.log(process.env.DB_NAME)
 mongoose 
   .connect(mongouri, {
-    dbName: process.env.DB_NAME,
+    dbName: process.env.DB_NAME || 'FEEL_NAIJA',
     useNewUrlParser: true,
     useUnifiedTopology: true,
   } as mongoose.ConnectOptions)

@@ -1,0 +1,15 @@
+https://graph.facebook.com/v16.0/oauth/access_token?grant_type=fb_exchange_token&client_id={app-id}&client_secret={app-secret}&fb_exchange_token={your-access-token}
+
+FeelNaija facebook user id : 122096503796130659
+
+Feel Naija app Id : 377584258023732, 377584258023732
+
+Feel Naija app secret 82fc0a6d13bce91ae81f957d5b31eb00
+
+client token : XXXXXXXX
+
+https://graph.facebook.com/v16.0/oauth/access_token?grant_type=fb_exchange_token&client_id=3316093725203782&client_secret=8aac1e258e2e8fe13886394863c1eed0&fb_exchange_token=EAAvHZBDyIXUYBO3F3lOZCzWuFOlpspCq0FzKMLb4OPp6XZBLqyFrm3LZAxp5Q9daqQv909NZAdf80sZC9uZBI5yA8GCZCBbdbQ9s2O5MmOqInMeBP6AUGsf0qkfRD5orrabKks1zNJTlQIdXD4wbjZBd77zZCroar8HHYa3QXMSfoAKwBlynjQSGpCPu0A2DCWVpm67hdS53iskfsxsfqni6QxYqkx9dp6l9zO6H0ZD
+
+INSTAGRAM_USERNAME = feelnaija2023
+INSTAGRAM_PASSWORD = 10111011qwe
+INSTAGRAM_USER_ID =  17841463011417989

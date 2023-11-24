@@ -5,12 +5,57 @@ const RequestFormSchema = new Schema({
   client: {
     type: Schema.Types.ObjectId, 
     ref: 'user',
+    required: false,
+  },
+  phone: {
+    type: String,
+    default: '',
     required: true,
   },
-  request:{
-    text: String,
-    images: [String], // Array to store image URLs
+  email: {
+    type: String,
+    default: '',
+    required: true,
   },
+  caption:{
+    type: String,
+    default: '',
+    required: false,
+  },
+  request_images:{
+    type: [],
+    default: [], 
+  },
+  request_otp_code:{
+    type: String,
+    default: '',
+    required: false,
+  },
+
+  isAuthorized:{
+    type:Boolean,
+    default:false,
+    required:true
+  },
+
+  isAuthorized_time: {
+    type: Date,
+    default: '',
+    required: false,
+  },
+
+  isPosted:{
+    type:Boolean,
+    default:false,
+    required:true
+  },
+
+  isPosted_time: {
+    type: Date,
+    default: '',
+    required: false,
+  },
+
   date_initiated: {
     type: Date,
     default: Date.now,

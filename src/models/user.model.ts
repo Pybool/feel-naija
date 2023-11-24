@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 const UserSchema = new Schema({
   email: {
@@ -38,37 +38,15 @@ const UserSchema = new Schema({
     required: false,
     default:''
   },
-  usertype: {
-    type: String,
-    required: false,
-    default:'SELLER'
-  },
   phone: {
     type: String,
     required: false,
     default:''
   },
-  bankAccount: {
-    type: String,
-    required: false,
-    default:''
+  isAdmin: {
+    type: Boolean,
+    default:false
   },
-  bankName: {
-    type: String,
-    required: false,
-    default:''
-  },
-  wallet_address: {
-    type: String,
-    required: false,
-    default:''
-  },
-  preferredCurrency: {
-    type: String,
-    required: false,
-    default:'NGN'
-  }
-  ,
   reset_password_token: {
     type: String,
     required: false,
@@ -109,8 +87,6 @@ UserSchema.methods.getProfile = async function () {
       surname:this.surname,
       othername:this.othername,
       email:this.email,
-      bankAccount:this.bankAccount,
-      bankName:this.bankName,
       phone:this.phone,
       username:this.username
     }
