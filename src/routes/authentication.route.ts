@@ -3,6 +3,7 @@ const router = express.Router();
 import { handleInvalidMethod } from '../middlewares/invalidrequest'
 import authController from '../controllers/authentication.controller';
 import { decode, ensureAdmin } from '../middlewares/jwt';
+import passport from 'passport';
 
 router.post('/register', authController.register)
 router.get('/verify-email-address', authController.verifyEmail)
@@ -13,6 +14,9 @@ router.post('/login', authController.login)
 router.post('/refresh-token', authController.getRefreshToken)
 router.get('/user-profile', decode, authController.getUserProfile)
 router.put('/user-profile', decode, authController.saveUserProfile)
+router.get('/authorize', passport.authenticate("facebook"))
+
+
 
 
 router.all('/register', handleInvalidMethod);

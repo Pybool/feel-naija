@@ -58,6 +58,19 @@ export class InstagramRequest {
     console.log("Saved neuron ", savedNeuron);
   }
 
+  public async getLongLivedToken(shortLivedToken:string){
+    const requests = this.requestFactory();
+    const url = `https://graph.facebook.com/v18.0/oauth/access_token?grant_type=fb_exchange_token&client_id=${process.env.APPID as string}&client_secret=${process.env.APPSECRET as string}&fb_exchange_token=${shortLivedToken}`
+    const response: any = await requests.get(url);
+    if(response.access_token){
+        this.accessToken = response.access_token
+        return this.accessToken
+    }
+    /*Use short lived token as fallback token if request to get long lived token failed*/
+    this.accessToken = shortLivedToken
+    return null
+  }
+
   public async createItemsContainer(metaData: any) {
     try {
       const imagesUrls: any[] = metaData.request_images;
