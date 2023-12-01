@@ -19,9 +19,9 @@ import strategy from "passport-facebook";
 import { InstagramRequest } from './instagram/requestmanager';
 
 const FacebookStrategy = strategy.Strategy;
-
 const SERVER_URL = '0.0.0.0'
 const app = express();
+
 app.use(session({
   resave: false,
   saveUninitialized: true,
@@ -57,13 +57,15 @@ passport.use(new FacebookStrategy({
     clientSecret: config.facebookAuth.clientSecret,
     callbackURL: config.facebookAuth.callbackURL
   }, async function (accessToken, refreshToken, profile, done) {
-    const instagramRequest = new InstagramRequest()
-    const longLivedToken = await instagramRequest.getLongLivedToken(accessToken)
-    if(longLivedToken) instagramRequest.accessToken = longLivedToken
+    if(!accessToken) return null;
+    InstagramRequest.saveLastLogin();
+    const longLivedToken = await InstagramRequest.getLongLivedToken(accessToken)
+    console.log("Long Lived Token ", longLivedToken)
+    InstagramRequest.accessToken = accessToken
+    // if(longLivedToken) InstagramRequest.accessToken = longLivedToken
     try{return done(null, profile);}
     catch{}
     return 
-    
   }
 ));
 
@@ -72,7 +74,7 @@ let wss:any = utils.wss
 wss = new WebSocket.Server({ server });
 wss.on('connection', Websocket.connection);
 
-const PORT = process.env.PORT || 8457;
+const PORT = 8457;
 server.listen(PORT, () => {
   logger.info(`Server is running on ${SERVER_URL}:${PORT}`);
 });

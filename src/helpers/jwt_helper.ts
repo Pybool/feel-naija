@@ -10,7 +10,7 @@ const jwthelper = {
       const payload = {}
       const secret = process.env.ACCESS_TOKEN_SECRET as string
       const options = {
-        expiresIn: '24h',
+        expiresIn: '600s',
         issuer: process.env.ISSUER,
         audience: userId
       }
@@ -44,7 +44,7 @@ const jwthelper = {
       const payload = {}
       const secret = process.env.REFRESH_TOKEN_SECRET as string
       const options = {
-        expiresIn: '1y',
+        expiresIn: '72h',
         issuer: process.env.ISSUER,
         audience: userId,
       }
@@ -65,25 +65,17 @@ const jwthelper = {
       })
     })
   },
-  verifyRefreshToken: (refreshToken:string) => {
-    return new Promise((resolve, reject) => {
-      JWT.verify(
-        refreshToken,
-        process.env.REFRESH_TOKEN_SECRET as string,
-        (err, payload:any) => {
-          if (err) return reject(createError.Unauthorized())
-          const userId = payload.aud
-          // client.GET(userId, (err:any, result:string) => {
-          //   if (err) {
-          //     console.log(err.message)
-          //     reject(createError.InternalServerError())
-          //     return
-          //   }
-          //   if (refreshToken === result) return resolve(userId)
-          //   reject(createError.Unauthorized())
-          // })
+  verifyRefreshToken: (refreshToken:string,next:any) => {
+    return new Promise((resolve:any, reject:any) => {
+      JWT.verify(refreshToken,process.env.REFRESH_TOKEN_SECRET as string, (err:any, payload:any) => {
+        if (err) {
+          const message =
+            err.name === 'JsonWebTokenError' ? 'Unauthorized' : err.message
+          resolve({aud:false})
         }
-      )
+        console.log("===========> ",payload)
+        resolve(payload)
+      })
     })
   },
 }

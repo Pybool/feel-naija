@@ -17,7 +17,12 @@ const adminController:IAdmin  = {
   pushIgPostRequest: async (req:Xrequest, res:Response) => {
     try {
         const adminService = new AdminService()
-        return res.status(200).json(adminService.pushIgPostRequest(req)); 
+        const resp:any = await adminService.pushIgPostRequest(req)
+        console.log("REsp", resp)
+        if(resp==190){
+          return res.redirect('/')
+        }
+        return res.status(200).json(resp); 
     } catch (error) {
       return res.status(400).json({ status: false, error: error })
     }

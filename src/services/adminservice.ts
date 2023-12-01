@@ -23,8 +23,6 @@ export class AdminService {
       const totalCount = await RequestFormModel.countDocuments(filter);
 
       // Find documents with pagination and population
-      console.log(filter);
-
       const igPostRequests = await RequestFormModel.find(filter)
         .sort({ date_initiated: -1 })
         .skip((page - 1) * perPage)
@@ -64,24 +62,36 @@ export class AdminService {
   public async pushIgPostRequest(req: Xrequest) {
     const filter = { _id: req.body.postId };
     const postObject: any = await RequestFormModel.findOne(filter);
-    this._uploadInstagramPost(postObject);
-    socketMessangers.sendPersonalWebscoketMessage(
-      "instagram-post",
-      postObject.client?._id.toString(),
-      { status: "completed" }
-    );
+    const resp:any = await this._uploadInstagramPost(postObject);
+    console.log('resp.code',resp)
+    if(resp?.status){
+      postObject.isPosted = true
+      await postObject.save()
+      socketMessangers.sendPersonalWebscoketMessage(
+        "instagram-post",
+        postObject.client?._id.toString(),
+        { status: "completed" }
+      );
+      return resp
+    }
+    else{
+      if(resp?.code==190){
+        return resp?.code
+      }
+    }
+    
   }
 
   private async _uploadInstagramPost(postObject: any) {
-    await new Promise(async (resolve: any, reject: any) => {
-      resolve(console.log(postObject));
+    return await new Promise(async (resolve: any, reject: any) => {
       if (postObject.request_images.length == 1) {
         await postToInsta();
         resolve(1);
       } else {
         const instagramRequest = new InstagramRequest();
-        await instagramRequest.publishMediaRequest(postObject);
-        resolve(1);
+        const resp = await instagramRequest.publishMediaRequest(postObject);
+        console.log("Response---------- ", await resp)
+        resolve(resp);
       }
     });
     console.log("Long-running task completed");

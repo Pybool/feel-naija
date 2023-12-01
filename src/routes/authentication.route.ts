@@ -19,6 +19,7 @@ router.get('/authorize', passport.authenticate("facebook"))
 
 
 
+
 router.all('/register', handleInvalidMethod);
 router.all('/verify-email-address', handleInvalidMethod);
 router.all('/resend-email-verification', handleInvalidMethod);

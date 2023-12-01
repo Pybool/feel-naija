@@ -35,6 +35,7 @@ class UploadService {
     if (phone && email) {
       const text = req.body.comment;
       let base64ImagesArray: string[] = req.body.images;
+      console.log(base64ImagesArray)
       if (!Array.isArray(base64ImagesArray)) {
         base64ImagesArray = [base64ImagesArray];
       }

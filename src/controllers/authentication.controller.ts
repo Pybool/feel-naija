@@ -102,7 +102,10 @@ const authController: IAuth = {
     try {
       let status = 400;
       const authentication = new Authentication(req);
-      const result = await authentication.getRefreshToken();
+      if(req.body.refreshToken==''){
+        res.status(200).json({status:false});
+      }
+      const result = await authentication.getRefreshToken(next);
       if (result) status = 200;
       res.status(status).json(result);
     } catch (error: any) {

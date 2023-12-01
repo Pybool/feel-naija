@@ -140,16 +140,20 @@ export class Authentication {
 
     const accessToken = await jwthelper.signAccessToken(user.id);
     const refreshToken = await jwthelper.signRefreshToken(user.id);
-    return { status: true, accessToken, refreshToken };
+    return { status: true, data:user, accessToken, refreshToken };
   }
 
-  public async getRefreshToken() {
+  public async getRefreshToken(next:any) {
     const { refreshToken } = this.req.body;
     if (!refreshToken) throw createError.BadRequest();
-    const userId = (await jwthelper.verifyRefreshToken(refreshToken)) as string;
-    const accessToken = await jwthelper.signAccessToken(userId);
-    const refToken = await jwthelper.signRefreshToken(userId);
-    return { accessToken: accessToken, refreshToken: refToken };
+    const {aud} = (await jwthelper.verifyRefreshToken(refreshToken,next)) as any;
+    if(aud){
+      const accessToken = await jwthelper.signAccessToken(aud);
+      // const refToken = await jwthelper.signRefreshToken(aud);
+      return {status:true, accessToken: accessToken};
+    }
+    return {status:false };
+    
   }
 
   public async getUserProfile() {

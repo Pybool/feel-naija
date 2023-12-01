@@ -15,7 +15,7 @@ const mailActions = {
           const accessToken = await jwthelper.signAccessToken(savedUser.id)
           const refreshToken = await jwthelper.signRefreshToken(savedUser.id)
           const confirmationLink = `${process.env.BACKEND_BASE_URL}/auth/confirm?token=${accessToken}`;
-          const template = await ejs.renderFile('src/templates/emailConfirmation.html', { usermail,confirmationLink });
+          const template = await ejs.renderFile('src/templates/emailConfirmation.ejs', { usermail,confirmationLink });
         
           const mailOptions = {
             from: 'info.feelnigeria@gmail.com',
@@ -40,7 +40,7 @@ const mailActions = {
     uploadRequest:{
       sendOneTimePasswordMail: (async(payload:{authorizationCode:string,email:string,postRef:string})=>{
         let authorizationTemplate = await ejs.renderFile(
-          "src/templates/approvalOtpTemplate.html",
+          "src/templates/approvalOtpTemplate.ejs",
           { authorizationCode: payload.authorizationCode, recepient: payload.email, postRef:payload.postRef}
         );  
         const mailOptions:Options = {
