@@ -18,7 +18,7 @@ const adminController:IAdmin  = {
     try {
         const adminService = new AdminService()
         const resp:any = await adminService.pushIgPostRequest(req)
-        console.log("REsp", resp)
+        console.log("Upload Response ===> ", resp)
         if(resp==190){
           return res.redirect('/')
         }

@@ -3,7 +3,6 @@ import RequestFormModel from "../models/newrequest.model";
 import Mail from "nodemailer/lib/mailer";
 import sendMail from "./mailtrigger";
 import socketMessangers from "../helpers/wssender";
-import { postToInsta } from "../../test";
 import { InstagramRequest } from "../instagram/requestmanager";
 
 export class AdminService {
@@ -62,38 +61,29 @@ export class AdminService {
   public async pushIgPostRequest(req: Xrequest) {
     const filter = { _id: req.body.postId };
     const postObject: any = await RequestFormModel.findOne(filter);
-    const resp:any = await this._uploadInstagramPost(postObject);
-    console.log('resp.code',resp)
-    if(resp?.status){
-      postObject.isPosted = true
-      await postObject.save()
+    const resp: any = await this._uploadInstagramPost(postObject);
+    console.log("resp.code", resp);
+    if (resp?.status) {
+      postObject.isPosted = true;
+      await postObject.save();
       socketMessangers.sendPersonalWebscoketMessage(
         "instagram-post",
         postObject.client?._id.toString(),
         { status: "completed" }
       );
-      return resp
-    }
-    else{
-      if(resp?.code==190){
-        return resp?.code
+      return resp;
+    } else {
+      if (resp?.code == 190) {
+        return resp?.code;
       }
     }
-    
   }
 
   private async _uploadInstagramPost(postObject: any) {
     return await new Promise(async (resolve: any, reject: any) => {
-      if (postObject.request_images.length == 1) {
-        await postToInsta();
-        resolve(1);
-      } else {
-        const instagramRequest = new InstagramRequest();
-        const resp = await instagramRequest.publishMediaRequest(postObject);
-        console.log("Response---------- ", await resp)
-        resolve(resp);
-      }
+      const instagramRequest = new InstagramRequest();
+      const resp = await instagramRequest.publishMediaRequest(postObject);
+      resolve(resp);
     });
-    console.log("Long-running task completed");
   }
 }

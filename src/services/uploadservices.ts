@@ -1,6 +1,6 @@
 import multer from "multer";
-import path from 'path'
-import fs from 'fs'
+import path from "path";
+import fs from "fs";
 import { Request } from "express";
 import RequestFormModel from "../models/newrequest.model";
 import { config as dotenvConfig } from "dotenv";
@@ -35,13 +35,18 @@ class UploadService {
     if (phone && email) {
       const text = req.body.comment;
       let base64ImagesArray: string[] = req.body.images;
-      console.log(base64ImagesArray)
+      console.log(base64ImagesArray);
       if (!Array.isArray(base64ImagesArray)) {
         base64ImagesArray = [base64ImagesArray];
       }
       const today = new Date();
-      const dateFolder = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
-      const uploadFolderPath = path.resolve(__dirname, 'uploads').replace('\\src','\\public').replace('\\services','');
+      const dateFolder = `${today.getFullYear()}-${(today.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}-${today.getDate().toString().padStart(2, "0")}`;
+      const uploadFolderPath = path
+        .join(__dirname, "uploads")
+        .replace(path.join("src"), path.join("public"))
+        .replace(path.join("services"), "");
       const dailyFolderPath = path.resolve(uploadFolderPath, dateFolder);
       // Create the uploads folder if it doesn't exist
       if (!fs.existsSync(uploadFolderPath)) {
@@ -52,14 +57,20 @@ class UploadService {
       if (!fs.existsSync(dailyFolderPath)) {
         fs.mkdirSync(dailyFolderPath);
       }
-      const imageUrls = base64ImagesArray.map((base64Image:any) => {
+      const imageUrls = base64ImagesArray.map((base64Image: any) => {
         const fileName = `image_${Date.now()}.jpeg`;
-        const filePath = path.resolve(dailyFolderPath, fileName)    
+        const filePath = path.resolve(dailyFolderPath, fileName);
         // Convert base64 to buffer
-        const buffer = Buffer.from(base64Image.split(",")[1], "base64");    
+        const buffer = Buffer.from(base64Image.split(",")[1], "base64");
         fs.writeFileSync(filePath, buffer);
-        return filePath.split('\\public')[1].replaceAll("\\",'/'); // You can store the file path in the database if needed
+        const filePathWithoutPublic = filePath.split(path.join("public"))[1];
+        const normalizedFilePath = filePathWithoutPublic.replace(
+          new RegExp(path.sep.replace("\\", "\\\\"), "g"),
+          "/"
+        );
+        return normalizedFilePath; // You can store the file path in the database if needed
       });
+      
       const formData = new RequestFormModel({
         phone: phone,
         email: email,
