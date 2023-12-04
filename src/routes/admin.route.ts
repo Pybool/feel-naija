@@ -4,7 +4,7 @@ import { decode, ensureAdmin } from '../middlewares/jwt';
 import { handleInvalidMethod } from '../middlewares/invalidrequest'
 import adminController from '../controllers/admin.controller';
 
-router.put('/user-priviledge', decode, ensureAdmin, adminController.toggleUserAdminStatus)
+router.put('/user-priviledge', adminController.toggleUserAdminStatus)
 router.get('/awaiting-ig-post-requests',decode, adminController.getIgPostRequests)
 router.post('/publish-ig-post-request',  adminController.pushIgPostRequest)
 
