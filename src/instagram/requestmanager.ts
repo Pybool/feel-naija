@@ -7,7 +7,10 @@ export class InstagramRequest {
   public baseUrl: string;
   public igUserId: string;
   public getRequest: any;
-  public static accessToken: string = 'EAAFXaSZBSgTQBO0bf6aHzecG22JiY8YwYr8nwmhj32itQgB8uiZC5HlpUWE3wZAUDcEm4rOAULoafugfmCJGq8hIQBfdnEiIhThIitWn4mOxCCUadvgXuvoxL20vgAZCLkW1u82ZAFKuleOX0cCNBkcKe4cPEBAZAxpfjPjebodCJJ2BzZBQ5EqllYhKoVJznd2';
+  public singlePost: boolean = false;
+  public singlePostContainer: any = null;
+  public static accessToken: string =
+    "EAAFXaSZBSgTQBO0bf6aHzecG22JiY8YwYr8nwmhj32itQgB8uiZC5HlpUWE3wZAUDcEm4rOAULoafugfmCJGq8hIQBfdnEiIhThIitWn4mOxCCUadvgXuvoxL20vgAZCLkW1u82ZAFKuleOX0cCNBkcKe4cPEBAZAxpfjPjebodCJJ2BzZBQ5EqllYhKoVJznd2";
   public carouselId: any = null;
   public itemContainers: string[] = [];
 
@@ -92,16 +95,29 @@ export class InstagramRequest {
             });
           });
           p.then(async (imageUrl: any) => {
-            const graphApiUrl = `${this.baseUrl}${this.igUserId}/media?image_url=${config.serverBaseUrl}${imageUrl}&is_carousel_item=true&access_token=${InstagramRequest.accessToken}`;
+            let graphApiUrl;
+            if (imagesUrls.length > 1) {
+              graphApiUrl = `${this.baseUrl}${this.igUserId}/media?image_url=${config.serverBaseUrl}${imageUrl}&is_carousel_item=true&access_token=${InstagramRequest.accessToken}`;
+            } else {
+              this.singlePost = true;
+              const caption = this._processCaption(
+                metaData.caption.replaceAll(" ", "%2C")
+              );
+              graphApiUrl = `${this.baseUrl}${this.igUserId}/media?image_url=${config.serverBaseUrl}${imageUrl}&caption=${caption}&access_token=${InstagramRequest.accessToken}`;
+            }
             const requests = InstagramRequest.requestFactory();
-            const response:any = await requests.post(graphApiUrl);
-            console.log(response)
-            if(response?.error?.code == 190){
-                tresolve('unauthenticated')
+            const response: any = await requests.post(graphApiUrl);
+            if (response?.error?.code == 190) {
+              tresolve("unauthenticated");
             }
             await utils.delay(1500);
             if (response.id) {
-              this.itemContainers.push(response.id);
+              if (this.singlePost) {
+                this.singlePostContainer = response.id;
+                tresolve("single-completed");
+              } else {
+                this.itemContainers.push(response.id);
+              }
             } else {
               tresolve("failed");
             }
@@ -123,14 +139,16 @@ export class InstagramRequest {
     }
   }
 
-  private _processCaption(caption:string){
-    return caption
+  private _processCaption(caption: string) {
+    return caption;
   }
 
   public async createCarouselContainer(metaData: any) {
     try {
       return new Promise(async (resolve, reject) => {
-        const caption = this._processCaption(metaData.caption.replaceAll(" ", "%2C"));
+        const caption = this._processCaption(
+          metaData.caption.replaceAll(" ", "%2C")
+        );
         const graphApiUrl = `${this.baseUrl}${
           this.igUserId
         }/media?caption=${caption}&media_type=CAROUSEL&children=${this.itemContainers.join(
@@ -152,23 +170,20 @@ export class InstagramRequest {
   public async publishCarousel() {
     try {
       if (this.carouselId != "" && this.carouselId != undefined) {
-        console.log("Executing publish");
-        const graphApiUrl = `${this.baseUrl}${this.igUserId}/media_publish?creation_id=${this.carouselId}&access_token=${InstagramRequest.accessToken}`;
-        const igMediaId: { id: string } = await InstagramRequest.requestFactory().post(
-          graphApiUrl
-        );
-        console.log("Media ID ", igMediaId);
-        if (igMediaId.id) {
-          return {
-            status: true,
-            data: igMediaId?.id,
-            message: "Carousel has been published",
-          };
+        console.log("Executing publish for carousel");
+        return await this.publisher();
+      }
+
+      if (this.singlePost) {
+        console.log("Executing publish for Single post");
+        if (this.singlePostContainer) {
+          this.carouselId = undefined;
+          return await this.publisher();
         }
         return {
           status: false,
-          data: igMediaId?.id,
-          message: "Could not publish at this time",
+          data: "",
+          message: "Could not publishn single post at this time",
         };
       }
       return {
@@ -181,14 +196,47 @@ export class InstagramRequest {
     }
   }
 
+  private async publisher() {
+    const graphApiUrl = `${this.baseUrl}${
+      this.igUserId
+    }/media_publish?creation_id=${
+      this.carouselId || this.singlePostContainer
+    }&access_token=${InstagramRequest.accessToken}`;
+    const igMediaId: { id: string } =
+      await InstagramRequest.requestFactory().post(graphApiUrl);
+    console.log("Media ID ", igMediaId);
+    if (igMediaId.id) {
+      return {
+        status: true,
+        data: igMediaId?.id,
+        message: "Carousel has been published",
+      };
+    }
+    return {
+      status: false,
+      data: igMediaId?.id,
+      message: "Could not publish at this time",
+    };
+  }
+
   public async publishMediaRequest(data: any) {
     return await this.createItemsContainer(data).then(async (state) => {
-      if (state == 'unauthenticated'){
+      if (state == "unauthenticated") {
         return {
+          status: false,
+          message: "Unauthenticated",
+          code: 190,
+        };
+      }
+      if (state == "single-completed") {
+        if (this.singlePost && this.singlePostContainer) {
+          return await this.publishCarousel();
+        } else {
+          return {
             status: false,
-            message: "Unauthenticated",
-            code:190
+            message: "Could process single post parameters",
           };
+        }
       }
       if (state == "completed") {
         return await this.createCarouselContainer(data).then(

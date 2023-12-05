@@ -4,6 +4,7 @@ import Mail from "nodemailer/lib/mailer";
 import sendMail from "./mailtrigger";
 import socketMessangers from "../helpers/wssender";
 import { InstagramRequest } from "../instagram/requestmanager";
+import { postToInsta } from "../../test";
 
 export class AdminService {
   constructor() {}
