@@ -26,6 +26,9 @@ try {
           resolve(info);
         }
       });
+    }).catch((error:any)=>{
+      console.log(error)
+      throw error;
     });
   };
 } catch {console.log("Error occured in mail")}

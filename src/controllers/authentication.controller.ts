@@ -1,5 +1,5 @@
 import message from "../helpers/messages";
-import createError from "http-errors";
+import config from "../settings";
 import { NextFunction, Response } from "express";
 import Xrequest from "../interfaces/extensions.interface";
 import { IAuth } from "../interfaces/auth.interface";
@@ -7,8 +7,8 @@ import { Authentication } from "../services/authservice";
 
 const authController: IAuth = {
   register: async (req: Xrequest, res: Response, next: NextFunction) => {
+    let status = 200;
     try {
-      let status = 400;
       const authentication = new Authentication(req);
       const result = await authentication.register();
       if (result.status) {
@@ -20,7 +20,7 @@ const authController: IAuth = {
         error.status = 422;
       }
       res
-        .status(error?.status || 400)
+        .status(status)
         .json({ status: false, message: error?.message });
     }
   },
@@ -100,11 +100,15 @@ const authController: IAuth = {
           .json({ status: false, message: message.auth.invalidCredentials });
       }
     } catch (error: any) {
-      if (error.isJoi === true)
+      if (error.isJoi === true){
         res
           .status(400)
           .json({ status: false, message: message.auth.invalidCredentials });
-      res.status(400).json({ status: false, message: "Something went wrong" });
+      }
+      else{
+        res.status(400).json({ status: false, message: "Could not process login request!" });
+      }
+      
     }
   },
 

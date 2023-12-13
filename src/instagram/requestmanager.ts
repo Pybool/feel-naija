@@ -60,20 +60,25 @@ export class InstagramRequest {
   }
 
   public static async getLongLivedToken(shortLivedToken: string) {
-    const requests = InstagramRequest.requestFactory();
-    const url = `https://graph.facebook.com/v18.0/oauth/access_token?grant_type=fb_exchange_token&client_id=${
-      process.env.APPID as string
-    }&client_secret=${
-      process.env.APPSECRET as string
-    }&fb_exchange_token=${shortLivedToken}`;
-    const response: any = await requests.get(url);
-    if (response.access_token) {
-      InstagramRequest.accessToken = response.access_token;
-      return InstagramRequest.accessToken;
+    try {
+      const requests = InstagramRequest.requestFactory();
+      const url = `https://graph.facebook.com/v18.0/oauth/access_token?grant_type=fb_exchange_token&client_id=${
+        process.env.APPID as string
+      }&client_secret=${
+        process.env.APPSECRET as string
+      }&fb_exchange_token=${shortLivedToken}`;
+      const response: any = await requests.get(url);
+      if (response.access_token) {
+        InstagramRequest.accessToken = response.access_token;
+        return InstagramRequest.accessToken;
+      }
+      /*Use short lived token as fallback token if request to get long lived token failed*/
+      InstagramRequest.accessToken = shortLivedToken;
+      return null;
+    } catch(error) {
+      console.log(error)
+      return null;
     }
-    /*Use short lived token as fallback token if request to get long lived token failed*/
-    InstagramRequest.accessToken = shortLivedToken;
-    return null;
   }
 
   public async createItemsContainer(metaData: any) {
@@ -133,7 +138,7 @@ export class InstagramRequest {
             console.log(error);
           });
         });
-      });
+      }).catch((error: any) => {});
     } catch (error: any) {
       console.log(error);
     }
@@ -197,64 +202,78 @@ export class InstagramRequest {
   }
 
   private async publisher() {
-    const graphApiUrl = `${this.baseUrl}${
-      this.igUserId
-    }/media_publish?creation_id=${
-      this.carouselId || this.singlePostContainer
-    }&access_token=${InstagramRequest.accessToken}`;
-    const igMediaId: { id: string } =
-      await InstagramRequest.requestFactory().post(graphApiUrl);
-    console.log("Media ID ", igMediaId);
-    if (igMediaId.id) {
+    try {
+      const graphApiUrl = `${this.baseUrl}${
+        this.igUserId
+      }/media_publish?creation_id=${
+        this.carouselId || this.singlePostContainer
+      }&access_token=${InstagramRequest.accessToken}`;
+      const igMediaId: { id: string } =
+        await InstagramRequest.requestFactory().post(graphApiUrl);
+      console.log("Media ID ", igMediaId);
+      if (igMediaId.id) {
+        return {
+          status: true,
+          data: igMediaId?.id,
+          message: "Carousel has been published",
+        };
+      }
       return {
-        status: true,
+        status: false,
         data: igMediaId?.id,
-        message: "Carousel has been published",
+        message: "Could not publish at this time",
+      };
+    } catch(error) {
+      console.log(error)
+      return {
+        status: false,
+        data: null,
+        message: "Could not publish at this time",
       };
     }
-    return {
-      status: false,
-      data: igMediaId?.id,
-      message: "Could not publish at this time",
-    };
   }
 
   public async publishMediaRequest(data: any) {
     return await this.createItemsContainer(data).then(async (state) => {
-      if (state == "unauthenticated") {
-        return {
-          status: false,
-          message: "Unauthenticated",
-          code: 190,
-        };
-      }
-      if (state == "single-completed") {
-        if (this.singlePost && this.singlePostContainer) {
-          return await this.publishCarousel();
-        } else {
+      try{
+        if (state == "unauthenticated") {
           return {
             status: false,
-            message: "Could process single post parameters",
+            message: "Unauthenticated",
+            code: 190,
           };
         }
-      }
-      if (state == "completed") {
-        return await this.createCarouselContainer(data).then(
-          async (carouselId) => {
-            if (carouselId) {
-              return await this.publishCarousel();
-            }
+        if (state == "single-completed") {
+          if (this.singlePost && this.singlePostContainer) {
+            return await this.publishCarousel();
+          } else {
             return {
               status: false,
-              message: "Could not generate carousel for images",
+              message: "Could process single post parameters",
             };
           }
-        );
+        }
+        if (state == "completed") {
+          return await this.createCarouselContainer(data).then(
+            async (carouselId) => {
+              if (carouselId) {
+                return await this.publishCarousel();
+              }
+              return {
+                status: false,
+                message: "Could not generate carousel for images",
+              };
+            }
+          );
+        }
+        return {
+          status: false,
+          message: "Could not generate container for carousel",
+        };
       }
-      return {
-        status: false,
-        message: "Could not generate container for carousel",
-      };
+      catch(error){
+        console.log(error)
+      }
     });
   }
 }

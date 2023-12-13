@@ -55,36 +55,47 @@ export class AdminService {
       }
       return { status: true, data: igPostRequests, paginationInfo, links };
     } catch (error: any) {
+      console.log(error)
       return { status: false, error: error.message };
     }
   }
 
   public async pushIgPostRequest(req: Xrequest) {
-    const filter = { _id: req.body.postId };
-    const postObject: any = await RequestFormModel.findOne(filter);
-    const resp: any = await this._uploadInstagramPost(postObject);
-    console.log("resp.code", resp);
-    if (resp?.status) {
-      postObject.isPosted = true;
-      await postObject.save();
-      socketMessangers.sendPersonalWebscoketMessage(
-        "instagram-post",
-        postObject.client?._id.toString(),
-        { status: "completed" }
-      );
-      return resp;
-    } else {
-      if (resp?.code == 190) {
-        return resp?.code;
+    try {
+      const filter = { _id: req.body.postId };
+      const postObject: any = await RequestFormModel.findOne(filter);
+      const resp: any = await this._uploadInstagramPost(postObject);
+      console.log("resp.code", resp);
+      if (resp?.status) {
+        postObject.isPosted = true;
+        await postObject.save();
+        socketMessangers.sendPersonalWebscoketMessage(
+          "instagram-post",
+          postObject.client?._id.toString(),
+          { status: "completed" }
+        );
+        return resp;
+      } else {
+        if (resp?.code == 190) {
+          return resp?.code;
+        }
       }
+    } catch (error) {
+      console.log(error)
+      throw error;
     }
   }
 
   private async _uploadInstagramPost(postObject: any) {
-    return await new Promise(async (resolve: any, reject: any) => {
-      const instagramRequest = new InstagramRequest();
-      const resp = await instagramRequest.publishMediaRequest(postObject);
-      resolve(resp);
-    });
+    try {
+      return await new Promise(async (resolve: any, reject: any) => {
+        const instagramRequest = new InstagramRequest();
+        const resp = await instagramRequest.publishMediaRequest(postObject);
+        resolve(resp);
+      });
+    } catch (error) {
+      console.log(error)
+      throw error;
+    }
   }
 }
