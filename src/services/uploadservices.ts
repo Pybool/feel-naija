@@ -18,10 +18,15 @@ class UploadService {
   arraifyUploads() {
     try {
       const storage = multer.memoryStorage();
-      const upload = multer({ storage: storage });
+      const upload = multer({
+        storage: storage,
+        limits: {
+          fieldSize: 9 * 1024 * 1024, // 4MB limit
+        },
+      });
       return upload.array("images", parseInt(process.env.MAX_IMAGES || "5"));
     } catch (error) {
-      console.log(error)
+      console.log("Errpr",error);
       throw error;
     }
   }
@@ -96,7 +101,7 @@ class UploadService {
       }
       return { status: false, id: "", message: "badData" };
     } catch (error) {
-      console.log(error)
+      console.log(error);
       throw error;
     }
   }
@@ -114,7 +119,7 @@ class UploadService {
         requestCode: requestObject.request_otp_code,
       });
     } catch (error) {
-      console.log(error)
+      console.log(error);
       throw error;
     }
   }
@@ -127,7 +132,7 @@ class UploadService {
           .exec()) || "";
       return postIGRequest;
     } catch (error) {
-      console.log(error)
+      console.log(error);
       throw error;
     }
   }
@@ -147,7 +152,7 @@ class UploadService {
         return { data: requestObject, isAuthorized: isValid };
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       throw error;
     }
   }

@@ -83,6 +83,7 @@ export class InstagramRequest {
 
   public async createItemsContainer(metaData: any) {
     try {
+      InstagramRequest.accessToken = 'EAAFXaSZBSgTQBO3LhRsvGFNi9nKszKgJ5EI1IR0TdpyZC1jIYf2RB5plgqnbpHidm3E55czivyJ4tU1z5ZBJrsMB4Xt0GaEOHqnrpR4Dw4tHiZC4U33I470TTMv8Emt4BiQPkd0e1eX5fjIxW1KplI6VcOeTVXWbijxmi2dFZBjVxCrtRL3v8whv35znNoDmeY1IDx0WkwDl23ITJLmX8gMM1vllKc6MeVnD8GBFdsB4aS1FxwQSsgUNBEbZCb7ZBQmZCVbBGQZDZD'
       const imagesUrls: any[] = metaData.request_images;
       return new Promise((tresolve: any, treject: any) => {
         imagesUrls.forEach(async (imageUrl: string) => {
@@ -110,8 +111,10 @@ export class InstagramRequest {
               );
               graphApiUrl = `${this.baseUrl}${this.igUserId}/media?image_url=${config.serverBaseUrl}${imageUrl}&caption=${caption}&access_token=${InstagramRequest.accessToken}`;
             }
+            console.log(graphApiUrl)
             const requests = InstagramRequest.requestFactory();
             const response: any = await requests.post(graphApiUrl);
+            console.log("Response ===> ", response)
             if (response?.error?.code == 190) {
               tresolve("unauthenticated");
             }
