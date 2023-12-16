@@ -42,7 +42,7 @@ export const postToInsta = async () => {
         await saveSession(serialized);
     }
     const imageBuffer = await get({
-        url: 'http://127.0.0.1:8457/uploads/2023-11-22/image_1700655161705.jpeg',
+        url: 'http://69.49.247.218:8457/uploads/2023-11-22/image_1700655161705.jpeg',
         encoding: null, 
     });
 

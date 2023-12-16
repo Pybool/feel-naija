@@ -15,7 +15,12 @@ const authController: IAuth = {
         status = 201;
         res.status(status).json(result);
       }
+      else{
+        console.log("result ",result)
+        return res.status(200).json(result);
+      }
     } catch (error: any) {
+      console.log("Auth error ",error.message)
       if (error.isJoi === true) {
         error.status = 422;
       }

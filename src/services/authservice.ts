@@ -37,9 +37,13 @@ export class Authentication {
         return { status: true, message: "Registration successful" };
       }
       return { status: false, message: "Registration was unsuccessfull!" };
-    } catch (error) {
-      console.log(error)
-      return { status: false, message: "Registration was unsuccessfull!" };
+    } catch (error:any) {
+      let msg:string = "Registration was unsuccessfull!"
+      if (error.message.includes('already exists!')) {
+        error.status = 200;
+        msg = error.message || "User with email address already exists!"
+      }
+      return { status: false, message: msg };
     }
   }
 
@@ -212,7 +216,7 @@ export class Authentication {
         if (field != "email") user[field] = patchData[field];
       });
       await user.save();
-      return { status: true, message: "Profile updated successfully.." };
+      return { status: true, data:await user.getProfile(), message: "Profile updated successfully.." };
     } catch(error) {
       console.log(error)
       return { status: false, message: "Profile update failed.." };

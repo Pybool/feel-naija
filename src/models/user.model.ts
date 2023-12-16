@@ -43,6 +43,16 @@ const UserSchema = new Schema({
     required: false,
     default:''
   },
+  address: {
+    type: String,
+    required: false,
+    default:''
+  },
+  avatar: {
+    type: String,
+    required: false,
+    default:'shared/anon.jpeg'
+  },
   isAdmin: {
     type: Boolean,
     default:false
@@ -88,7 +98,10 @@ UserSchema.methods.getProfile = async function () {
       othername:this.othername,
       email:this.email,
       phone:this.phone,
-      username:this.username
+      username:this.username,
+      isAdmin: this.isAdmin,
+      avatar: this.avatar,
+      address: this.address
     }
   } catch (error) {
     throw error
