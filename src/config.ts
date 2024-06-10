@@ -1,9 +1,10 @@
 const config = {
 	'facebookAuth': {
-		'clientID':  '377584258023732', // your App ID
-		'clientSecret':  '82fc0a6d13bce91ae81f957d5b31eb00', // your App Secret
+		'clientID':  '3316093725203782', // your App ID
+		'clientSecret':  '8aac1e258e2e8fe13886394863c1eed0', // your App Secret
 		'callbackURL':  'http://localhost:8457/auth/facebook/callback'
 	}
 }
 
 export default config;
+

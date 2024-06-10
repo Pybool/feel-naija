@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start-dev": "ts-node-dev src/server.ts",
-    "start-prod": "nodemon src/server.ts"
+    "start": "node dist/src/server.js",
+    "build": "copyfiles -u 1 ./src/templates/* dist/ && tsc"
   },
   "keywords": [],
   "author": "",
@@ -42,6 +43,7 @@
     "body-parser": "^1.20.2",
     "bullmq": "^4.14.0",
     "cors": "^2.8.5",
+    "copyfiles": "^2.4.1",
     "dayjs": "^1.10.4",
     "dotenv": "^8.2.0",
     "ejs": "^3.1.9",

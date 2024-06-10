@@ -10,7 +10,7 @@ export class InstagramRequest {
   public singlePost: boolean = false;
   public singlePostContainer: any = null;
   public static accessToken: string =
-    "EAAFXaSZBSgTQBO0bf6aHzecG22JiY8YwYr8nwmhj32itQgB8uiZC5HlpUWE3wZAUDcEm4rOAULoafugfmCJGq8hIQBfdnEiIhThIitWn4mOxCCUadvgXuvoxL20vgAZCLkW1u82ZAFKuleOX0cCNBkcKe4cPEBAZAxpfjPjebodCJJ2BzZBQ5EqllYhKoVJznd2";
+    "EAAFXaSZBSgTQBO3ePZC4msH3G3D8VdoExb7BFWd1jSlHEGFpu6t9TBe7bUjsZBLdqjHtXQsJHeMWsmlGxnOa8kLu0c1D5CyvHpUZB8ucq7ZBSeHmIpmCYZCu0xraPMogZCgAgL0h8DmliQgMiz7QmHmYy7xephDcn3eseczpcwK7ZBapnL3GXgqhvHdLkbcYt8sJBBYrfdgZBhoEUZCZAh5Jsh5lXBksLhSeSmnfIdAyNRnfPADa7L7k4J3ZCtWK2KYKUzRmbIo0kwZDZD";
   public carouselId: any = null;
   public itemContainers: string[] = [];
 
@@ -23,6 +23,7 @@ export class InstagramRequest {
     return {
       get: async (url: string) => {
         try {
+          console.log("Fetching ", url)
           const response = await fetch(url, {
             method: "get",
             headers: { "Content-Type": "application/json" },
@@ -83,7 +84,7 @@ export class InstagramRequest {
 
   public async createItemsContainer(metaData: any) {
     try {
-      InstagramRequest.accessToken = 'EAAFXaSZBSgTQBO3LhRsvGFNi9nKszKgJ5EI1IR0TdpyZC1jIYf2RB5plgqnbpHidm3E55czivyJ4tU1z5ZBJrsMB4Xt0GaEOHqnrpR4Dw4tHiZC4U33I470TTMv8Emt4BiQPkd0e1eX5fjIxW1KplI6VcOeTVXWbijxmi2dFZBjVxCrtRL3v8whv35znNoDmeY1IDx0WkwDl23ITJLmX8gMM1vllKc6MeVnD8GBFdsB4aS1FxwQSsgUNBEbZCb7ZBQmZCVbBGQZDZD'
+      console.log("Creating container")
       const imagesUrls: any[] = metaData.request_images;
       return new Promise((tresolve: any, treject: any) => {
         imagesUrls.forEach(async (imageUrl: string) => {
@@ -91,7 +92,7 @@ export class InstagramRequest {
           let p = new Promise((resolve: any, reject: any) => {
             Jimp.read(`${config.serverBaseUrl}${imageUrl}`).then((lenna) => {
               lenna
-                .resize(1000, 800, Jimp.RESIZE_HERMITE)
+                .resize(800, 800, Jimp.RESIZE_HERMITE)
                 .quality(100)
                 .write(
                   `./public/processing/${updatedCaption}.jpg`,
